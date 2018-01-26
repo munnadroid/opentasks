@@ -1,0 +1,111 @@
+apply plugin: 'java'
+
+def support_lib_version = '25.4.0'
+def jems_version = '1.15'
+def contentpal_version = '9b087b2' // 9b087b2 -> 2017-12-12
+def support_test_runner_version = '0.5'
+def d = [
+        // Support & Google libraries
+        support_appcompat  : "com.android.support:appcompat-v7:$support_lib_version",
+        support_annotations: "com.android.support:support-annotations:$support_lib_version",
+        support_design     : "com.android.support:design:$support_lib_version",
+        android_dashclock  : 'com.google.android.apps.dashclock:dashclock-api:2.0.0',
+
+        // dmfs
+        jems               : "org.dmfs:jems:$jems_version",
+        datetime           : 'org.dmfs:rfc5545-datetime:0.2.4',
+        lib_recur          : 'org.dmfs:lib-recur:0.10.1',
+        xml_magic          : 'org.dmfs:android-xml-magic:0.1.1',
+        color_picker       : 'com.github.dmfs.color-picker:colorpicker-activity:1.1',
+        android_carrot     : 'com.github.dmfs.androidcarrot:androidcarrot:13edc04',
+        bolts_color        : 'com.github.dmfs.bolts:color-bolts:27f34f7', // 27f34f7 -> 2017-12-04
+        contentpal         : "com.github.dmfs.contentpal:contentpal:$contentpal_version",
+
+        // 3rd party
+        codeka_carrot      : 'au.com.codeka:carrot:2.4.0',
+
+        // Testing
+        junit              : 'junit:junit:4.12',
+        hamcrest           : 'org.hamcrest:hamcrest-all:1.3',
+        mockito            : 'org.mockito:mockito-core:2.10.0',
+        roboelectric       : 'org.robolectric:robolectric:3.5.1',
+        support_test_runner: "com.android.support.test:runner:$support_test_runner_version",
+        support_test_rules : "com.android.support.test:rules:$support_test_runner_version",
+
+        // dmfs testing
+        jems_testing       : "org.dmfs:jems-testing:$jems_version",
+        contenttestpal     : "com.github.dmfs.contentpal:contenttestpal:$contentpal_version",
+        contentpal_testing : "com.github.dmfs.contentpal:contentpal-testing:$contentpal_version"
+]
+
+ext.deps_opentasks = {
+    implementation project(':opentasks-provider')
+    implementation d.support_appcompat
+    implementation d.support_design
+    implementation(d.xml_magic) {
+        // xmlpull is part of the runtime, so don't pull it in here
+        exclude group: 'xmlpull', module: 'xmlpull'
+    }
+    implementation d.android_dashclock
+    implementation d.color_picker
+    implementation(d.codeka_carrot) {
+        exclude module: 'iterators' // TODO Remove when iterators have been removed from codeka:carrot
+    }
+    implementation(d.android_carrot) {
+        exclude module: 'carrot'
+        exclude group: 'com.android.support'
+        exclude module: 'iterators'
+        exclude module: 'jems'
+    }
+    implementation d.jems
+    implementation d.datetime
+    implementation d.bolts_color
+    testImplementation d.junit
+    testImplementation d.roboelectric
+    androidTestImplementation(d.support_test_runner) {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestImplementation(d.support_test_rules) {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+}
+
+ext.deps_opentasks_contract = {}
+
+ext.deps_opentasks_provider = {
+    api project(':opentasks-contract')
+    implementation d.datetime
+    implementation d.lib_recur
+    implementation d.jems
+    androidTestImplementation project(':opentaskspal')
+    androidTestImplementation(d.contenttestpal) {
+        exclude module: 'jems'
+    }
+    androidTestImplementation d.support_annotations
+    androidTestImplementation d.support_test_runner
+    androidTestImplementation d.support_test_rules
+    testImplementation d.roboelectric
+    testImplementation d.junit
+    testImplementation d.mockito
+    testImplementation d.jems_testing
+    testImplementation d.hamcrest
+}
+
+ext.deps_opentaskspal = {
+    implementation project(':opentasks-contract')
+    implementation(d.contentpal) {
+        exclude module: 'jems'
+    }
+    implementation d.datetime
+    implementation d.lib_recur
+    implementation d.jems
+    implementation d.bolts_color
+    testImplementation(d.contentpal_testing) {
+        exclude module: 'jems'
+    }
+    testImplementation d.roboelectric
+    testImplementation d.junit
+    testImplementation d.mockito
+}
+
+
